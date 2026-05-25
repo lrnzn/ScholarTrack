@@ -2,7 +2,7 @@
 
 A React Native (Expo) mobile app that helps Filipino students find scholarships matched to their course or program. All data is stored locally on the device — no backend or internet account required.
 
-Developed by: mykel Rey De Los Reyes, Lorenzen Ilon, Joeric Israel Gonzales
+Developed by: Mykel Rey De Los Reyes, Lorenzen Ilon, Joeric Israel Gonzales
 
 ## Features
 
