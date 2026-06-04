@@ -1,5 +1,12 @@
+import { courseOptions } from '../data/dropdownOptions';
+
 export function normalizeCourse(course) {
-  return course.trim().toUpperCase();
+  const cleanedCourse = course.trim();
+  const matchedCourse = courseOptions.find((option) => {
+    return option.value.toLowerCase() === cleanedCourse.toLowerCase() || option.label.toLowerCase() === cleanedCourse.toLowerCase();
+  });
+
+  return matchedCourse?.value || cleanedCourse.toUpperCase();
 }
 
 export function isValidEmail(email) {

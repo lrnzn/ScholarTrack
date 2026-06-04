@@ -4,7 +4,7 @@ import * as ImagePicker from 'expo-image-picker';
 import AppButton from '../components/AppButton';
 import DropdownInput from '../components/DropdownInput';
 import AppInput from '../components/AppInput';
-import { provinceOptions, sexOptions } from '../data/dropdownOptions';
+import { courseOptions, getCourseLabel, provinceOptions, sexOptions } from '../data/dropdownOptions';
 import { getUser, saveUser } from '../utils/storage';
 import { normalizeCourse, validateProfile } from '../utils/validation';
 import { colors, radius, shadows, spacing, typography } from '../theme/theme';
@@ -242,7 +242,7 @@ export default function ProfileScreen({ navigation }) {
             )}
           </Pressable>
           <Text style={styles.name}>{user?.fullName || 'Student'}</Text>
-          <Text style={styles.course}>{user?.course || 'Course'}</Text>
+          <Text style={styles.course}>{user?.course ? getCourseLabel(user.course) : 'Course'}</Text>
           <View style={styles.photoActions}>
             <Pressable onPress={handlePickPhoto} style={({ pressed }) => [styles.photoButton, pressed && styles.avatarPressed]}>
               <Text style={styles.photoButtonText}>{user?.photoUri ? 'Change Photo' : 'Upload Photo'}</Text>
@@ -263,8 +263,24 @@ export default function ProfileScreen({ navigation }) {
               <AppInput label="Full Name" value={values.fullName} onChangeText={(text) => updateField('fullName', text)} placeholder="Full Name" />
               <AppInput label="Age" value={values.age} onChangeText={(text) => updateField('age', text)} placeholder="Age" keyboardType="number-pad" />
               <DropdownInput label="Sex" value={values.sex} onSelect={(item) => updateField('sex', item)} placeholder="Select sex" options={sexOptions} />
-              <DropdownInput label="Province" value={values.address} onSelect={(item) => updateField('address', item)} placeholder="Select province" options={provinceOptions} />
-              <AppInput label="Course/Program" value={values.course} onChangeText={(text) => updateField('course', text)} placeholder="BSIT" />
+              <DropdownInput
+                label="Province"
+                value={values.address}
+                onSelect={(item) => updateField('address', item)}
+                placeholder="Select province"
+                options={provinceOptions}
+                searchable
+                searchPlaceholder="Search province"
+              />
+              <DropdownInput
+                label="Course/Program"
+                value={values.course}
+                onSelect={(item) => updateField('course', item)}
+                placeholder="Select course/program"
+                options={courseOptions}
+                searchable
+                searchPlaceholder="Search course or program"
+              />
               <AppButton title="Save Changes" onPress={handleSave} style={styles.saveButton} />
             </View>
           ) : (

@@ -3,6 +3,7 @@ import { Alert, Animated, ImageBackground, ScrollView, StyleSheet, Text, TextInp
 import { LinearGradient } from 'expo-linear-gradient';
 import AppButton from '../components/AppButton';
 import ScholarshipCard from '../components/ScholarshipCard';
+import { getCourseLabel } from '../data/dropdownOptions';
 import { scholarships } from '../data/scholarships';
 import { getSavedScholarshipIds, getUser, saveScholarship, unsaveScholarship } from '../utils/storage';
 import { colors, spacing, typography } from '../theme/theme';
@@ -62,7 +63,10 @@ export default function HomeScreen({ navigation, route }) {
         item.name,
         item.description,
         item.deadline,
+        item.summary,
+        item.requirements.join(' '),
         item.eligibleCourses.join(' '),
+        item.eligibleCourses.map(getCourseLabel).join(' '),
       ]
         .join(' ')
         .toLowerCase();
@@ -94,7 +98,7 @@ export default function HomeScreen({ navigation, route }) {
         <LinearGradient colors={['rgba(9,21,52,0.86)', 'rgba(9,21,52,0.58)', 'rgba(244,247,251,1)']} style={styles.heroOverlay}>
           <View style={styles.headerRow}>
             <View style={styles.headerText}>
-              <Text style={styles.eyebrow}>Matched for {user?.course || 'your course'}</Text>
+              <Text style={styles.eyebrow}>Matched for {user?.course ? getCourseLabel(user.course) : 'your course'}</Text>
               <Text style={styles.title}>Scholarships you can apply for</Text>
             </View>
             <View style={styles.headerActions}>
@@ -142,8 +146,8 @@ export default function HomeScreen({ navigation, route }) {
               <Text style={styles.emptyTitle}>{searchQuery.trim() ? 'No search results' : 'No matches yet'}</Text>
               <Text style={styles.emptyBody}>
                 {searchQuery.trim()
-                  ? 'Try another keyword, scholarship name, deadline, or course code.'
-                  : 'Update your profile course using common codes such as BSIT, BSHM, BSEd, BSBA, BSA, or BSN.'}
+                  ? 'Try another keyword, scholarship name, deadline, or course/program.'
+                  : 'Update your profile course using the Course/Program dropdown.'}
               </Text>
               {searchQuery.trim() ? (
                 <AppButton title="Clear Search" onPress={() => setSearchQuery('')} style={styles.emptyButton} />

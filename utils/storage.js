@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const USER_KEY = '@scholarship_finder_user';
 const SAVED_SCHOLARSHIPS_KEY = '@scholarship_finder_saved_ids';
 const SETTINGS_KEY = '@scholarship_finder_settings';
+const memoryStore = {};
 
 const defaultSettings = {
   notifications: true,
@@ -12,25 +13,25 @@ const defaultSettings = {
 };
 
 export async function saveUser(user) {
-  await AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
+  await setStoredItem(USER_KEY, JSON.stringify(user));
 }
 
 export async function getUser() {
-  const value = await AsyncStorage.getItem(USER_KEY);
+  const value = await getStoredItem(USER_KEY);
   return value ? JSON.parse(value) : null;
 }
 
 export async function getSavedScholarshipIds() {
-  const value = await AsyncStorage.getItem(SAVED_SCHOLARSHIPS_KEY);
+  const value = await getStoredItem(SAVED_SCHOLARSHIPS_KEY);
   return value ? JSON.parse(value) : [];
 }
 
 export async function saveScholarshipIds(ids) {
-  await AsyncStorage.setItem(SAVED_SCHOLARSHIPS_KEY, JSON.stringify(ids));
+  await setStoredItem(SAVED_SCHOLARSHIPS_KEY, JSON.stringify(ids));
 }
 
 export async function clearSavedScholarships() {
-  await AsyncStorage.removeItem(SAVED_SCHOLARSHIPS_KEY);
+  await removeStoredItem(SAVED_SCHOLARSHIPS_KEY);
 }
 
 export async function saveScholarship(id) {
@@ -52,10 +53,39 @@ export async function unsaveScholarship(id) {
 }
 
 export async function getSettings() {
-  const value = await AsyncStorage.getItem(SETTINGS_KEY);
+  const value = await getStoredItem(SETTINGS_KEY);
   return value ? { ...defaultSettings, ...JSON.parse(value) } : defaultSettings;
 }
 
 export async function saveSettings(settings) {
-  await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  await setStoredItem(SETTINGS_KEY, JSON.stringify(settings));
+}
+
+async function getStoredItem(key) {
+  try {
+    const value = await AsyncStorage.getItem(key);
+    return value ?? memoryStore[key] ?? null;
+  } catch (error) {
+    return memoryStore[key] ?? null;
+  }
+}
+
+async function setStoredItem(key, value) {
+  memoryStore[key] = value;
+
+  try {
+    await AsyncStorage.setItem(key, value);
+  } catch (error) {
+    return;
+  }
+}
+
+async function removeStoredItem(key) {
+  delete memoryStore[key];
+
+  try {
+    await AsyncStorage.removeItem(key);
+  } catch (error) {
+    return;
+  }
 }

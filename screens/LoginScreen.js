@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, Animated, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
+import { Animated, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import AppButton from '../components/AppButton';
 import AppInput from '../components/AppInput';
 import AuthBackground from '../components/AuthBackground';
@@ -15,6 +15,7 @@ export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     Animated.timing(fade, {
@@ -25,31 +26,29 @@ export default function LoginScreen({ navigation }) {
   }, [fade]);
 
   const handleLogin = async () => {
+    setMessage('');
+
     if (!email.trim() || !password) {
-      Alert.alert('Missing details', 'Please enter your email and password.');
+      setMessage('Please enter your email and password.');
       return;
     }
 
     if (!isValidEmail(email)) {
-      Alert.alert('Invalid email', 'Please enter a valid email address.');
+      setMessage('Please enter a valid email address.');
       return;
     }
 
     setLoading(true);
+    setMessage('Checking account...');
     try {
       const user = await getUser();
       if (!user || user.email.toLowerCase() !== email.trim().toLowerCase() || user.password !== password) {
-        Alert.alert('Login failed', 'Email or password is incorrect.');
+        setMessage('Email or password is incorrect.');
         return;
       }
-      Alert.alert('Login successful', `Welcome back, ${user.fullName}!`, [
-        {
-          text: 'Continue',
-          onPress: () => navigation.replace('Home', { user }),
-        },
-      ]);
+      navigation.replace('Home', { user });
     } catch (error) {
-      Alert.alert('Storage error', 'Unable to log in right now. Please try again.');
+      setMessage('Unable to log in right now. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -59,7 +58,7 @@ export default function LoginScreen({ navigation }) {
     <AuthBackground source={LOGIN_IMAGE}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.container}>
         <Animated.View style={[styles.panel, { opacity: fade, transform: [{ translateY: fade.interpolate({ inputRange: [0, 1], outputRange: [22, 0] }) }] }]}>
-          <Text style={styles.eyebrow}>Scholarship Finder PH</Text>
+          <Text style={styles.eyebrow}>ScholarTrack</Text>
           <Text style={styles.title}>Find grants that fit your course.</Text>
           <Text style={styles.subtitle}>Log in to see scholarships matched to your program.</Text>
 
@@ -69,8 +68,9 @@ export default function LoginScreen({ navigation }) {
           </View>
 
           <AppButton title={loading ? 'Checking...' : 'Log In'} onPress={handleLogin} disabled={loading} />
+          {message ? <Text style={styles.message}>{message}</Text> : null}
           <AppButton title="Create an Account" variant="secondary" onPress={() => navigation.navigate('SignUp')} style={styles.secondaryButton} />
-          <Text style={styles.credit}>Developed by: De los Reyes, Ilon, Gonzales J.</Text>
+          <Text style={styles.credit}>Developed by: De Los Reyes, Mykel {"\n"} Ilon, Lorenzen{"\n"} Gonzales, Joeric Israel.</Text>
         </Animated.View>
       </KeyboardAvoidingView>
     </AuthBackground>
@@ -109,6 +109,12 @@ const styles = StyleSheet.create({
   },
   secondaryButton: {
     marginTop: spacing.sm,
+  },
+  message: {
+    ...typography.body,
+    color: colors.danger,
+    marginTop: spacing.sm,
+    textAlign: 'center',
   },
   credit: {
     ...typography.small,

@@ -1,5 +1,24 @@
 export const sexOptions = ['Female', 'Male', 'Prefer not to say'];
 
+export const courseOptions = [
+  { label: 'Bachelor of Science in Information Technology', value: 'BSIT' },
+  { label: 'Bachelor of Science in Computer Science', value: 'BSCS' },
+  { label: 'Bachelor of Secondary Education', value: 'BSEd' },
+  { label: 'Bachelor of Science in Business Administration', value: 'BSBA' },
+  { label: 'Bachelor of Science in Accountancy', value: 'BSA' },
+  { label: 'Bachelor of Science in Nursing', value: 'BSN' },
+  { label: 'Bachelor of Science in Civil Engineering', value: 'BSCE' },
+  { label: 'Bachelor of Science in Electrical Engineering', value: 'BSEE' },
+  { label: 'Bachelor of Science in Mechanical Engineering', value: 'BSME' },
+  { label: 'Bachelor of Science in Mathematics', value: 'BSMath' },
+  { label: 'Bachelor of Science in Hospitality Management', value: 'BSHM' },
+  { label: 'Bachelor of Science in Tourism Management', value: 'BSTM' },
+];
+
+export function getCourseLabel(courseCode) {
+  return courseOptions.find((course) => course.value === courseCode)?.label || courseCode;
+}
+
 export const provinceOptions = [
   'Abra',
   'Agusan del Norte',

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Alert, ImageBackground, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ImageBackground, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import AppButton from '../components/AppButton';
 import DropdownInput from '../components/DropdownInput';
 import AppInput from '../components/AppInput';
-import { provinceOptions, sexOptions } from '../data/dropdownOptions';
+import { courseOptions, provinceOptions, sexOptions } from '../data/dropdownOptions';
 import { saveUser } from '../utils/storage';
 import { normalizeCourse, validateSignUp } from '../utils/validation';
 import { colors, radius, shadows, spacing, typography } from '../theme/theme';
@@ -25,18 +25,22 @@ const initialValues = {
 export default function SignUpScreen({ navigation }) {
   const [values, setValues] = useState(initialValues);
   const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
 
   const updateField = (field, value) => {
     setValues((current) => ({ ...current, [field]: value }));
   };
 
   const handleSignUp = async () => {
+    setMessage('');
+
     const validationMessage = validateSignUp(values);
     if (validationMessage) {
-      Alert.alert('Check your details', validationMessage);
+      setMessage(validationMessage);
       return;
     }
 
+    setMessage('Creating account...');
     setSaving(true);
     try {
       const user = {
@@ -49,14 +53,9 @@ export default function SignUpScreen({ navigation }) {
         email: values.email.trim(),
       };
       await saveUser(user);
-      Alert.alert('Account created', 'Please log in with your new account to view your scholarship matches.', [
-        {
-          text: 'Go to Login',
-          onPress: () => navigation.replace('Login'),
-        },
-      ]);
+      navigation.replace('Login');
     } catch (error) {
-      Alert.alert('Storage error', 'Unable to save your account. Please try again.');
+      setMessage(`Unable to save your account. Please try again. ${error?.message || ''}`.trim());
     } finally {
       setSaving(false);
     }
@@ -76,12 +75,29 @@ export default function SignUpScreen({ navigation }) {
               <AppInput label="Full Name" value={values.fullName} onChangeText={(text) => updateField('fullName', text)} placeholder="Juan Dela Cruz" />
               <AppInput label="Age" value={values.age} onChangeText={(text) => updateField('age', text)} placeholder="20" keyboardType="number-pad" />
               <DropdownInput label="Sex" value={values.sex} onSelect={(item) => updateField('sex', item)} placeholder="Select sex" options={sexOptions} />
-              <DropdownInput label="Province" value={values.address} onSelect={(item) => updateField('address', item)} placeholder="Select province" options={provinceOptions} />
-              <AppInput label="Course/Program" value={values.course} onChangeText={(text) => updateField('course', text)} placeholder="BSIT, BSHM, BSEd" />
+              <DropdownInput
+                label="Province"
+                value={values.address}
+                onSelect={(item) => updateField('address', item)}
+                placeholder="Select province"
+                options={provinceOptions}
+                searchable
+                searchPlaceholder="Search province"
+              />
+              <DropdownInput
+                label="Course/Program"
+                value={values.course}
+                onSelect={(item) => updateField('course', item)}
+                placeholder="Select course/program"
+                options={courseOptions}
+                searchable
+                searchPlaceholder="Search course or program"
+              />
               <AppInput label="Email" value={values.email} onChangeText={(text) => updateField('email', text)} placeholder="student@email.com" keyboardType="email-address" />
               <AppInput label="Password" value={values.password} onChangeText={(text) => updateField('password', text)} placeholder="At least 6 characters" secureTextEntry />
 
               <AppButton title={saving ? 'Saving...' : 'Create Account'} onPress={handleSignUp} disabled={saving} style={styles.button} />
+              {message ? <Text style={styles.message}>{message}</Text> : null}
               <AppButton title="Back to Login" variant="secondary" onPress={() => navigation.goBack()} />
             </View>
           </ScrollView>
@@ -127,5 +143,10 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: spacing.sm,
+  },
+  message: {
+    ...typography.body,
+    color: colors.danger,
+    textAlign: 'center',
   },
 });

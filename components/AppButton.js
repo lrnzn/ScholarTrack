@@ -1,37 +1,43 @@
 import React, { useRef } from 'react';
-import { Animated, Pressable, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { colors, radius, shadows, spacing, typography } from '../theme/theme';
 
 export default function AppButton({ title, onPress, variant = 'primary', style, disabled }) {
-  const scale = useRef(new Animated.Value(1)).current;
   const isSecondary = variant === 'secondary';
+  const pressHandled = useRef(false);
 
-  const animateTo = (value) => {
-    Animated.spring(scale, {
-      toValue: value,
-      useNativeDriver: true,
-      speed: 28,
-      bounciness: 4,
-    }).start();
+  const handlePress = () => {
+    if (disabled) {
+      return;
+    }
+
+    pressHandled.current = true;
+    onPress?.();
+  };
+
+  const handleTouchEnd = () => {
+    if (disabled) {
+      return;
+    }
+
+    setTimeout(() => {
+      if (!pressHandled.current) {
+        onPress?.();
+      }
+      pressHandled.current = false;
+    }, 120);
   };
 
   return (
-    <Animated.View style={[{ transform: [{ scale }] }, style]}>
-      <Pressable
-        onPress={onPress}
-        disabled={disabled}
-        onPressIn={() => animateTo(0.97)}
-        onPressOut={() => animateTo(1)}
-        style={({ pressed }) => [
-          styles.button,
-          isSecondary ? styles.secondary : styles.primary,
-          disabled && styles.disabled,
-          pressed && styles.pressed,
-        ]}
-      >
-        <Text style={[styles.text, isSecondary && styles.secondaryText]}>{title}</Text>
-      </Pressable>
-    </Animated.View>
+    <TouchableOpacity
+      activeOpacity={0.86}
+      onPress={handlePress}
+      onTouchEnd={handleTouchEnd}
+      disabled={disabled}
+      style={[styles.button, isSecondary ? styles.secondary : styles.primary, disabled && styles.disabled, style]}
+    >
+      <Text style={[styles.text, isSecondary && styles.secondaryText]}>{title}</Text>
+    </TouchableOpacity>
   );
 }
 
@@ -59,9 +65,6 @@ const styles = StyleSheet.create({
   },
   secondaryText: {
     color: colors.primary,
-  },
-  pressed: {
-    opacity: 0.9,
   },
   disabled: {
     opacity: 0.55,
